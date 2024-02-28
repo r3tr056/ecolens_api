@@ -2,15 +2,20 @@
 package controllers
 
 import (
+	"fmt"
+	"math/rand"
 	"time"
 
 	"github.com/r3tr056/ecolens_api/app/models"
 	"github.com/r3tr056/ecolens_api/pkg/utils"
+	"github.com/r3tr056/ecolens_api/pkg/utils/email"
 	"github.com/r3tr056/ecolens_api/platform/db"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/gofiber/fiber/v2"
 )
+
+var resetTokens = make(map[string]models.ResetTokenInfo)
 
 // @Summary User SignUp
 // @Description Create a new user account.
@@ -139,21 +144,104 @@ func UserSignIn(c *fiber.Ctx) error {
 	})
 }
 
-// func ForgotPassword(c *fiber.Ctx) error {
-// 	var request models.ForgotPassword
-// 	var user models.User
+func generateResetToken() string {
+	const tokenLength = 16
+	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-// 	if err := c.BodyParser(&request); err != nil {
-// 		return c.Status(400).JSON(fiber.Map{
-// 			"error": "Invalid request payload",
-// 		})
-// 	}
+	rand.New(rand.NewSource(time.Now().UnixNano()))
+	b := make([]byte, tokenLength)
+	for i := range b {
+		b[i] = letterBytes[rand.Intn(len(letterBytes))]
+	}
 
-// 	if err := db.PostgresDB.Where("email = ?", request.Email).First(&user).Error; err != nil {
-// 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-// 			"error": true,
-// 			"msg":   "User not found",
-// 		})
-// 	}
+	return string(b)
+}
 
-// }
+func ForgotPassword(c *fiber.Ctx) error {
+	var request models.ForgotPassword
+	var user models.User
+
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"error": "Invalid request payload",
+		})
+	}
+
+	if err := db.PostgresDB.Where("email = ?", request.Email).First(&user).Error; err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": true,
+			"msg":   "User not found",
+		})
+	}
+
+	token := generateResetToken()
+	// Store the token with an expiration time
+	resetTokens[token] = models.ResetTokenInfo{
+		UserID:         user.ID,
+		ExpirationTime: time.Now().Add(time.Hour),
+	}
+
+	name := fmt.Sprintf("%s %s", user.FirstName, user.LastName)
+	err := email.SendResetEmail(user.Email, name, user.Username, token)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error":   true,
+			"message": "Failed to send reset email",
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"message": "Reset email sent successfully",
+	})
+
+}
+
+func ResetPasswordHandler(c *fiber.Ctx) error {
+	resetToken := c.Params("token")
+	newPassword := c.Params("newPassword")
+	var user models.User
+
+	if resetToken == "" || newPassword == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   true,
+			"message": "Invalid reset token or password",
+		})
+	}
+
+	tokenInfo, validToken := resetTokens[resetToken]
+	if !validToken || time.Now().After(tokenInfo.ExpirationTime) {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   true,
+			"message": "Invalid or expired reset token",
+		})
+	}
+
+	if err := db.PostgresDB.First(&user, tokenInfo.UserID).Error; err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": true,
+			"msg":   "User not found",
+		})
+	}
+
+	hashedPassword, err := utils.GeneratePassword(newPassword)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+	user.PasswordHash = hashedPassword
+
+	if err := db.PostgresDB.Save(user).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	delete(resetTokens, resetToken)
+
+	return c.JSON(fiber.Map{
+		"message": "Password reset successful",
+	})
+}
