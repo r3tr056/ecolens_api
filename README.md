@@ -1,6 +1,8 @@
 # Ecoview API
 
-![Ecoview Logo](link/to/ecoview-logo.png)
+<img src="./.github/assets/logo.png" alt="Ecoview Logo" width="200" />
+
+## Scan, Discover, Choose: EcoView - Your Path to Sustainable Living
 
 Ecoview API is the backend application that powers EcoView, an innovative application designed to enhance environmental awareness and promote sustainability. EcoView enables users to scan and search for products, providing valuable insights into each item's environmental impact. The application encourages responsible consumption and offers green alternatives, contributing to a more eco-conscious and sustainable lifestyle.
 
