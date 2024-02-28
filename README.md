@@ -1,85 +1,82 @@
-# EcoLens Machine Learning
+# Ecoview API
 
-[![License](https://img.shields.io/badge/License-GNU_GPL-green.svg)](LICENSE)
+![Ecoview Logo](link/to/ecoview-logo.png)
 
-## Overview
+Ecoview API is the backend application that powers EcoView, an innovative application designed to enhance environmental awareness and promote sustainability. EcoView enables users to scan and search for products, providing valuable insights into each item's environmental impact. The application encourages responsible consumption and offers green alternatives, contributing to a more eco-conscious and sustainable lifestyle.
 
-EcoLens Machine Learning  is a project that integrates advanced machine learning techniques into the EcoLens platform. The goal is to elevate its capabilities in providing real-time, personalized, and accurate information on the environmental impact of products.
+## Table of Contents
 
-## Key Objectives
+- [Introduction](#ecoview-api)
+- [Features](#features)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+- [Usage](#usage)
+- [API Documentation](#api-documentation)
+- [Contributing](#contributing)
+- [License](#license)
 
-1. **Image Recognition Improvement:**
-   - Implement state-of-the-art machine learning models for accurate and efficient product image recognition through the Google Lens integration.
+## Features
 
-2. **Sustainability Rating Predictions:**
-   - Develop models to predict sustainability ratings for products based on various factors, enhancing the accuracy of environmental impact assessments.
+- **Product Scanning:** Users can scan product barcodes to retrieve detailed environmental information.
+- **Search Functionality:** Search for products to get insights into their environmental impact.
+- **Environmental Ratings:** Products are rated based on their sustainability, helping users make informed choices.
+- **Green Alternatives:** EcoView suggests eco-friendly alternatives to promote sustainable consumption.
+- **User Accounts:** Users can create accounts to save favorite products and track their eco-friendly choices.
+- **Admin Panel:** Administrative tools for managing products, categories, and user data.
 
-3. **User Behavior Analysis and Personalization:**
-   - Utilize machine learning algorithms to analyze user interactions within the EcoLens application, providing personalized recommendations for users.
+## Installation
 
-4. **Dynamic Prioritization of Local Businesses:**
-   - Implement machine learning to dynamically prioritize local businesses with sustainable practices based on real-time data and user preferences.
+### Prerequisites
 
-5. **Enhanced Supply Chain Transparency:**
-   - Develop models to analyze and improve the transparency of supply chains, predicting and identifying potential environmental impacts.
+Before you begin, ensure you have the following dependencies installed:
 
-6. **Natural Language Processing for Information Extraction:**
-   - Apply NLP techniques to extract valuable information from textual data, enriching the dataset used for sustainability analysis.
+- [Docker](https://www.docker.com/get-started)
 
-7. **Continuous Learning and Model Updates:**
-   - Establish a system for continuous learning, ensuring machine learning models are regularly updated based on new data and user interactions.
+### Docker Installation
 
+1. Clone the repository:
 
-## Technical Architecture
-<img src=".github/assets/components.jpg" alt="Components" width="700"/>
+   ```bash
+   git clone https://github.com/your-username/ecoview-api.git
+   ```
 
-**Components**
+2. Navigate to the project directory:
 
-* **ecolens_ml** 
-   * **Purpose:**  Houses machine learning (ML) models and associated logic.  
-   * **Technologies:** Cloud Run, AI Platform, PyTorch
-   * **Functions:** Image Label Recognition, Product Classification (if eco-focused), Predictive Analytics, Data augmentation and generation.
+   ```bash
+   cd ecoview-api
+   ```
 
-* **cloudvision** (Google Cloud Vision API)
-   * **Purpose:** Extracts text from product labels using optical character recognition (OCR)
-   * **Functions:** Image classification, OCR (text recognition) etc.
+3. Set up environment variables:
 
-* **ecodome** (Heavy Stuff)
+   Create a `.env` file in the project root and configure the following:
 
-   **Components of Ecodome**
+   ```env
+   PORT=3000
+   MONGODB_URI=mongodb://mongo:27017/ecoview
+   SECRET_KEY=your-secret-key
+   ```
 
-   * **Google Search**
-      * **Purpose:** Integrates with Google's search capabilities, allowing users to search within the system's data or potentially leveraging broader web search results.
+   Adjust the values as needed for your environment.
 
-   * **Image Similarity Search**
-      * **Purpose:** Leverages Google Lens's Image Searching capabilities through SerpAPI. To find images similar to a user uploaded image.
+4. Build and run the Docker containers:
 
-   * **Gemini LLM**
-      * **Purpose:** Integrates with a large language model (LLM), Google's Gemini Pro. This unlocks advanced language understanding and text-based interactions.
+   ```bash
+   docker-compose up -d
+   ```
 
-   * **Knowledge Engine**
-      * **Purpose:** To construct and manage a knowledge graph. This structured representation of data enhances search and information retrieval.
-      
-   * **QnA API**
-      * **Purpose:**  Provides a question-answering interface powered by the knowledge base and LLM capabilities. Users can ask natural language questions.
+   This command will build the Docker images and start the containers in detached mode.
 
-   * **Environment Data Synthesis**
-      * **Purpose:**  Aggregates and processes environmental data from sources like Google Search and EPDs, potentially generating insights and enhancing Knowledge
+5. The API server will be running at `http://localhost:3000`.
 
-* **EPD Data**
-   * **Purpose:** Stores Environmental Product Declarations (EPDs) used to communicate the environmental performance of products and materials.
+## Usage
 
-* **Google Cloud PUB/SUB**
-   * **Purpose:** A messaging service enabling asynchronous communication and decoupling of microservices.
+To use the Ecoview API, refer to the API documentation for detailed information on available endpoints and request/response formats.
 
-## Datasets
+## API Documentation
 
-For training and validation, the following types of datasets are used:
+Detailed API documentation is available [here](link/to/api/documentation).
 
-- **Product Image Recognition:** Open Images Dataset, ImageNet.
-- **Sustainability Rating Predictions:** EcoLabel Index.
-- **User Behavior Analysis:** E-commerce User Behavior Dataset.
-- **Local Business Focus:** Local Business Directories.
-- **Supply Chain Transparency:** Open Food Facts.
-- **NLP for Information Extraction:** Product Descriptions and Reviews Datasets.
-- **Continuous Learning:** Real-time Sustainability Data Feeds.
+## Contributing
+
+We welcome contributions! If you'd like to contribute to Ecoview API, please follow our [contribution guidelines](link/to/contributing.md).
